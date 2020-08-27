@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
-    /**
-     * Display user settings form.
-     */
     public function settings()
     {
         return view('users.account', [
@@ -20,11 +17,6 @@ class UsersController extends Controller
         ]);
     }
 
-    /**
-     * Display specific user.
-     *
-     * @param int $id
-     */
     public function show($id)
     {
         return view('users.user', [
@@ -36,11 +28,6 @@ class UsersController extends Controller
         ]);
     }
 
-    /**
-     * Update user settings.
-     *
-     * @param Request $request
-     */
     public function update(Request $request)
     {
         $user = User::find(Auth::id());
@@ -54,7 +41,6 @@ class UsersController extends Controller
             'new_password' => 'nullable|string|min:6|different:password',
             ]);
 
-        //Update image if new one provided
         if (null !== $request->image) {
             $imageName = time().'.'.$request->image->getClientOriginalExtension();
 
@@ -63,7 +49,6 @@ class UsersController extends Controller
             $user->image = $imageName;
         }
 
-        //Update rest if set.
         strlen($request->display_name) > 0 ? $user->display_name = $request->display_name : '';
         strlen($request->biography) > 0 ? $user->biography = $request->biography : '';
         strlen($request->new_password) > 0 ? $user->password = Hash::make($request->new_password) : '';
@@ -73,11 +58,6 @@ class UsersController extends Controller
         return redirect('user/'.Auth::id());
     }
 
-    /**
-     * Follow specified user.
-     *
-     * @param int $id
-     */
     public function follow($id)
     {
         $record = Follow::where([
@@ -85,7 +65,6 @@ class UsersController extends Controller
             ['user_2', $id],
         ]);
 
-        //If our record doesn't exist we create it
         if (null === $record->first()) {
             $follow = new Follow();
 
@@ -93,7 +72,6 @@ class UsersController extends Controller
             $follow->user_2 = $id;
             $follow->save();
 
-        //If it exists we delete it
         } else {
             $record->delete();
         }

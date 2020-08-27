@@ -9,30 +9,18 @@ use Illuminate\Support\Facades\Auth;
 
 class PostsController extends Controller
 {
-    /**
-     * Constructor.
-     */
     public function _construct()
     {
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //Ammount to fetch
         $count = 20;
 
         Request::validate([
             'page' => 'nullable|numeric',
         ]);
 
-        //$_GET ?page=count, default 1
         $page = intval(Request::query('page', 1));
         $pageCount = Post::count();
 
@@ -52,21 +40,14 @@ class PostsController extends Controller
         ]);
     }
 
-    /**
-     * Display liked posts.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function liked()
     {
-        //Ammount to fetch
         $count = 20;
 
         Request::validate([
             'page' => 'nullable|numeric',
         ]);
 
-        //$_GET ?page=count, default 1
         $page = intval(Request::query('page', 1));
         $pageCount = Post::whereIn('id', function ($query) {
             return $query->select('post_id')->from('likes')->where('user_id', Auth::id());
@@ -92,16 +73,8 @@ class PostsController extends Controller
         ]);
     }
 
-    /**
-     * Display listings posted by followed users.
-     *
-     * @param Request $request
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function following()
     {
-        //Ammount to fetch
         $count = 20;
 
         Request::validate([
@@ -133,23 +106,11 @@ class PostsController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         return view('posts.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param \Illuminate\Http\Request
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function store()
     {
         Request::validate([
@@ -172,13 +133,6 @@ class PostsController extends Controller
         return redirect('posts/'.$post->id);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         return view('posts.index', [
@@ -186,13 +140,6 @@ class PostsController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
         return view('posts.edit', [
@@ -200,19 +147,10 @@ class PostsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int                      $id
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function update($id)
     {
         $post = Post::find($id);
 
-        //Only save if currently logged in users id matches orginal posters user id (Might not be needed)
         if (intval($post->user_id) === Auth::id()) {
             Request::validate([
                 'description' => 'required|max:255',
@@ -226,13 +164,6 @@ class PostsController extends Controller
         return redirect('posts/'.$post->id);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         $post = Post::find($id);
@@ -244,11 +175,7 @@ class PostsController extends Controller
         return redirect('posts/');
     }
 
-    /**
-     * Like a listing of the resource.
-     *
-     * @param int $id
-     */
+  
     public function like($id)
     {
         $record = Like::where([
@@ -256,7 +183,6 @@ class PostsController extends Controller
             ['post_id', $id],
         ]);
 
-        //If our record doesn't exist we create it
         if (null === $record->first()) {
             $like = new Like();
 
@@ -264,7 +190,6 @@ class PostsController extends Controller
             $like->post_id = $id;
             $like->save();
 
-        //If it exists we delete it
         } else {
             $record->delete();
         }
